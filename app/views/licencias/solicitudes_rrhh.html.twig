@@ -1,0 +1,60 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Gestión de Solicitudes de Licencia</h1>
+    <a href="/dashboard_rrhh" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Panel de RRHH</a>
+
+    {% if mensaje %}
+        <div class="alert {{ mensaje.type }}">{{ mensaje.text }}</div>
+    {% endif %}
+
+    <div class="container">
+        <h2>Historial Completo de Solicitudes</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Agente</th>
+                    <th>Tipo de Licencia</th>
+                    <th>Período</th>
+                    <th>Jefe Directo</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if solicitudes is not empty %}
+                    {% for solicitud in solicitudes %}
+                        <tr>
+                            <td>{{ solicitud.agente_nombre }}</td>
+                            <td>{{ solicitud.articulo }}</td>
+                            <td>{{ solicitud.fecha_inicio|date('d/m/Y') }} - {{ solicitud.fecha_fin|date('d/m/Y') }}</td>
+                            <td>{{ solicitud.jefe_nombre ?? 'N/A' }}</td>
+                            <td>
+                                <span class="status-{{ solicitud.estado }}">
+                                    {{ solicitud.estado|replace({'_': ' '})|capitalize }}
+                                </span>
+                            </td>
+                            <td class="action-buttons" style="justify-content: flex-end;">
+                                {% if solicitud.estado == 'aceptada_jefe' %}
+                                    <form action="/solicitudes_licencia" method="post">
+                                        <input type="hidden" name="procesar_id" value="{{ solicitud.solicitud_id }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="procesar-btn btn-sm"><i class="fas fa-check"></i> Procesar</button>
+                                    </form>
+                                    <form action="/solicitudes_licencia" method="post">
+                                        <input type="hidden" name="rechazar_id" value="{{ solicitud.solicitud_id }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="rechazar-btn btn-sm"><i class="fas fa-times"></i> Rechazar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" style="text-align: center;">No se ha registrado ninguna solicitud de licencia.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

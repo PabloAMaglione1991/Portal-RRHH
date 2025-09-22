@@ -1,0 +1,119 @@
+# Documentación: Sistema de Gestión de Personal y Fichadas
+
+## 1. Introducción
+
+Este proyecto es una aplicación web desarrollada en PHP para la gestión de personal (agentes) y el control de sus fichadas (registros de entrada y salida). La aplicación presenta una interfaz moderna y está diseñada con un sistema de roles robusto que adapta la vista y las funcionalidades disponibles según el tipo de usuario que ha iniciado sesión (Agente, Jefe, Supervisor, RRHH, Administrador).
+
+El sistema se enfoca en la seguridad, la usabilidad y la facilidad de mantenimiento.
+
+---
+
+## 2. Estructura del Proyecto
+
+La aplicación sigue una estructura organizada para separar la lógica, las plantillas visuales y los recursos estáticos.
+/
+|-- assets/
+|   |-- css/
+|   |   -- style.css       # Hoja de estilos global con toda la apariencia visual.
+    |   -- images/
+|       |-- mihospital_logo.png # Logo principal de la aplicación.
+|
+|-- includes/
+    |   -- db.php            # Script para la conexión con la base de datos.
+|-- templates/
+|   |-- header.php        # Plantilla del encabezado: incluye el sidebar y la barra de navegación superior.
+    |-- footer.php        # Plantilla del pie de página: cierra la estructura HTML.
+|-- asignar_jefe_masivo.php # Lógica backend para la asignación masiva de jefes a agentes.
+|-- bulk_password_reset.php # Script de uso único para resetear contraseñas de todos los agentes.
+|-- cambiar_contrasena.php  # Página con formulario para que un usuario cambie su contraseña.
+|-- crear_usuario.php       # Formulario para la creación de nuevos usuarios (Admin).
+|-- dashboard_admin.php     # Panel de control para el rol Administrador.
+|-- dashboard_agente.php    # Panel de control para el rol Agente.
+|-- dashboard_jefe.php      # Panel de control para el rol Jefe.
+|-- dashboard_main.php      # Menú principal donde el usuario selecciona su rol/panel.
+|-- dashboard_rrhh.php      # Panel de control para el rol RRHH.
+|-- dashboard_supervisor.php# Panel de control para el rol Supervisor.
+|-- editar_usuario.php      # Formulario para editar un usuario existente (Admin).
+|-- eliminar_usuario.php    # Lógica backend para eliminar un usuario (Admin).
+|-- fichadas.php            # Vista de calendario para visualizar las fichadas de un agente.
+|-- gestion_usuarios.php    # Panel principal de gestión de usuarios (Admin/RRHH).
+|-- index.php               # Redirige automáticamente a login.php.
+|-- login.php               # (Asumido) Página de inicio de sesión.
+|-- logout.php              # Script que destruye la sesión y cierra la sesión del usuario.
+
+---
+
+## 3. Base de Datos (Esquema Inferido)
+
+La aplicación interactúa principalmente con las siguientes tablas:
+
+* **`t_agente`**: Tabla central de usuarios.
+    * `age_id`: Identificador único (Primary Key).
+    * `age_nombre`, `age_apell1`: Nombre y apellido.
+    * `age_numdoc`: DNI del agente, usado para el login inicial.
+    * `age_password_hash`: Contraseña del usuario almacenada de forma segura (hasheada).
+    * `age_role`: Cadena de texto con los roles asignados, separados por coma (ej. "agente,jefe").
+    * `jefe_age_id`: Clave foránea a `age_id` de la misma tabla, estableciendo la jerarquía Jefe -> Agente.
+    * `supervisor_age_id`: Clave foránea a `age_id`, estableciendo la jerarquía Supervisor -> Jefe.
+
+* **`t_age_tarj`**: Tabla que asocia a un agente con su número de tarjeta para las fichadas.
+    * `age_id`: ID del agente.
+    * `tarj_nro`: Número de la tarjeta.
+
+* **`t_fichadas`**: Almacena todos los registros de entrada/salida.
+    * `tarj_nro`: Número de tarjeta que realizó la fichada.
+    * `fich_fecha`: Fecha de la fichada.
+    * `fich_hora`: Hora de la fichada.
+
+---
+
+## 4. Arquitectura y Conceptos Clave
+
+### Sistema de Plantillas (Templating)
+Para evitar la repetición de código y facilitar el mantenimiento del diseño, se utiliza un sistema de plantillas simple:
+* **`templates/header.php`**: Contiene todo el código HTML desde el `<!DOCTYPE>` hasta el inicio del área de contenido principal. Incluye la barra lateral (sidebar) y la barra de navegación superior (top-navbar).
+* **`templates/footer.php`**: Cierra todas las etiquetas HTML abiertas por el `header.php` y muestra el pie de página.
+
+### Seguridad
+La seguridad ha sido un pilar fundamental en el desarrollo:
+* **Autenticación y Sesiones**: Cada página valida al inicio si existe una sesión de usuario (`$_SESSION['user_id']`). De lo contrario, redirige al login.
+* **Autorización por Roles**: El acceso a las páginas y funcionalidades se controla a través del array `$_SESSION['user_roles']`. La función `in_array()` se utiliza para verificar si un usuario tiene el permiso necesario.
+* **Prevención de Inyección SQL**: Todas las consultas a la base de datos se realizan mediante **Sentencias Preparadas** de `mysqli`, utilizando `prepare()`, `bind_param()` y `execute()`.
+* **Prevención de Cross-Site Scripting (XSS)**: Todos los datos que se imprimen en el HTML se sanean con la función `htmlspecialchars()`.
+* **Prevención de Cross-Site Request Forgery (CSRF)**: Todos los formularios que realizan acciones (crear, editar, eliminar, asignar) incluyen un token CSRF único y oculto que se valida en el backend.
+* **Contraseñas Seguras**: Las contraseñas se almacenan hasheadas con `password_hash()` y se verifican con `password_verify()`.
+
+---
+
+## 5. Funcionalidades Implementadas
+
+### Sistema de Login y Roles
+* Los usuarios inician sesión y se les asignan roles que determinan qué pueden ver y hacer.
+* El menú lateral (sidebar) se adapta dinámicamente para mostrar solo los enlaces permitidos para el rol del usuario.
+* Los jefes, supervisores y RRHH también tienen acceso a las funciones de agente.
+
+### Visualización de Fichadas (`fichadas.php`)
+* Muestra un calendario interactivo con las fichadas de un agente.
+* **Cálculo automático de horas**: El sistema calcula y muestra el total de horas trabajadas por día.
+* **Estilos dinámicos**: El calendario resalta el día actual, los fines de semana y los días con actividad registrada.
+* **Filtros**: Permite filtrar la vista por año y mes.
+* **Navegación inteligente**: Incluye un botón "Volver" que regresa al usuario a la página exacta desde la que accedió.
+
+### Jerarquía y Dashboards
+* **Supervisor**: Ve una lista de los jefes a su cargo y puede acceder a sus paneles.
+* **Jefe**: Ve una lista de los agentes a su cargo en una tabla profesional y puede acceder a sus calendarios de fichadas.
+* **Agente**: Accede a su panel personal para ver sus fichadas y cambiar su contraseña.
+
+### Gestión de Usuarios (Admin/RRHH)
+* **Listado y Filtro**: Muestra una tabla con todos los usuarios. Permite filtrar por nombre, DNI, rol y jefe asignado.
+* **CRUD de Usuarios**: Funcionalidad completa para Crear, Editar y Eliminar usuarios.
+* **Asignación Masiva**: Herramienta eficiente para asignar un jefe a múltiples agentes seleccionados.
+* **Reseteo de Contraseñas**: Incluye un script de uso único para establecer la contraseña de todos los usuarios igual a su DNI.
+
+---
+
+## 6. Guía de Estilos (CSS)
+
+* **Archivo Único**: Todos los estilos están centralizados en `assets/css/style.css`.
+* **Variables CSS**: Se utiliza `:root` para definir una paleta de colores global (`--primary-blue`, `--red`, etc.), lo que permite cambiar el tema de toda la aplicación fácilmente.
+* **Diseño Moderno**: La interfaz se basa en un layout con `sidebar` y `top-navbar`, utilizando tarjetas (`.nav-card`), tablas estilizadas y un diseño responsivo básico.

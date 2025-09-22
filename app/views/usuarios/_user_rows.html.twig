@@ -1,0 +1,12 @@
+{% for usuario in usuarios %}
+    <tr>
+        <td><input type="checkbox" name="agentes_ids[]" value="{{ usuario.age_id }}" class="agent-checkbox"></td>
+        <td>{{ usuario.age_apell1 }} {{ usuario.age_nombre }}</td>
+        <td>{{ usuario.age_numdoc }}</td>
+        <td>{{ usuario.roles ? usuario.roles : 'Sin rol' }}</td>
+        <td>{{ usuario.jefe_apellido ? usuario.jefe_apellido : 'N/A' }}</td>
+        <td class="action-buttons">
+            <a href="/?page=editar_usuario&id={{ usuario.age_id }}" class="btn-edit">Editar</a>
+        </td>
+    </tr>
+{% endfor %}

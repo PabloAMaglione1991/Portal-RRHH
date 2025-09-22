@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="logo-container">
+            <img src="/assets/images/mihospital_logo.png" alt="Logo Aplicación">
+        </div>
+        <h2>Ingreso al Portal</h2>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/login" method="post">
+            <div class="form-group">
+                <input type="text" name="dni" placeholder="DNI" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn-view">Iniciar Sesión</button>
+        </form>
+    </div>
+</body>
+</html>

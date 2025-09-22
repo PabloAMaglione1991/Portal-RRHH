@@ -1,0 +1,45 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Panel de Recursos Humanos</h1>
+    <p>Bienvenido, {{ user_name }}. Desde aquí puedes acceder a las principales herramientas de gestión.</p>
+
+    <div class="container">
+        <div class="dashboard-nav">
+
+            <a href="/gestion_usuarios" class="nav-card">
+                <i class="fas fa-users"></i>
+                <h3>Gestión de Agentes</h3>
+            </a>
+
+            {% if modulo_novedades_activo %}
+            <a href="/gestion_novedades" class="nav-card">
+                <i class="fas fa-bullhorn"></i>
+                <h3>Novedades</h3>
+            </a>
+            {% endif %}
+
+            {% if modulo_reportes_activo %}
+            <a href="/reportes_rrhh" class="nav-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Reportes</h3>
+            </a>
+            {% endif %}
+
+            {% if modulo_licencias_activo %}
+            <a href="/solicitudes_licencia" class="nav-card">
+                <i class="fas fa-file-alt"></i>
+                <h3>Solicitudes Licencia</h3>
+            </a>
+            {% endif %}
+
+            {% if modulo_documentacion_activo %}
+            <a href="/documentacion_personal" class="nav-card">
+                <i class="fas fa-folder-open"></i>
+                <h3>Documentación Personal</h3>
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

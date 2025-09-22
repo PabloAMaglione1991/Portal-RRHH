@@ -1,0 +1,70 @@
+Guía de Usuario: Sistema de Gestión de Personal
+Bienvenido a la guía de usuario del sistema.
+
+1. Acceso al Sistema
+Para ingresar, utiliza tu DNI como usuario y, la primera vez, tu DNI como contraseña. Se recomienda cambiar la contraseña inmediatamente después de tu primer acceso.
+
+2. Panel Principal
+Al iniciar sesión, verás un menú con tarjetas. Cada tarjeta representa un panel o rol al que tienes acceso. Haz clic en una para ingresar.
+
+3. Funciones de Agente (Disponibles para todos los empleados)
+Estas opciones aparecen en el menú lateral para todos los usuarios, excepto los administradores puros.
+
+Mis Fichadas: Accede a un calendario interactivo para ver tus registros de entrada/salida, filtrar por fecha y ver el total de horas trabajadas por día.
+
+Cambiar Contraseña: Modifica tu contraseña de acceso personal.
+
+4. Funciones de Jefe
+Panel de Jefe: Muestra una tabla con los agentes a tu cargo.
+
+Ver Fichadas de Agentes: Desde la tabla, puedes hacer clic en "Ver Fichadas" para acceder al calendario de cualquier agente de tu equipo.
+
+5. Funciones de Supervisor
+Panel de Supervisor: Muestra una lista de los jefes que están bajo tu supervisión.
+
+Navegación Jerárquica: Puedes hacer clic en un jefe para ver su panel y, desde allí, navegar hasta los agentes que le reportan.
+
+6. Funciones de RRHH y Administrador
+Los roles de RRHH y Administrador comparten varias funciones de gestión.
+
+Gestión de Usuarios
+Crear, Editar y Eliminar: Administra el ciclo de vida completo de las cuentas de usuario.
+
+Asignación de Roles: En los formularios de creación/edición, puedes asignar múltiples roles a un usuario marcando las casillas correspondientes.
+
+Asignación Masiva de Jefes: En la página principal de gestion_usuarios.php, puedes marcar las casillas de varios agentes, seleccionar un jefe del menú desplegable inferior y asignarlos a todos con un solo clic.
+
+Filtros: Utiliza la barra de filtros para encontrar usuarios por nombre, DNI, rol o jefe.
+
+Gestión de Novedades
+Crear Novedad: Desde el panel de RRHH o Admin, accede a "Novedades" y luego a "Crear Nueva Novedad" para publicar un comunicado.
+
+Editar/Eliminar: En el listado de novedades, puedes modificar o eliminar cualquier publicación.
+
+Gestión de Documentación
+En el panel de RRHH, haz clic en la tarjeta "Documentación Personal".
+
+Busca al agente por nombre o apellido.
+
+Haz clic en el botón "Ver Documentos" en la fila del agente.
+
+En esta nueva pantalla podrás:
+
+Subir archivos: Usando el formulario superior.
+
+Ver/Descargar: Haciendo clic en el nombre de un archivo existente.
+
+Eliminar: Usando el botón de la papelera para cada archivo.
+
+Gestión de Licencias (RRHH)
+La tarjeta "Solicitudes Licencia" te lleva a una tabla que muestra las solicitudes que ya han sido aprobadas por un jefe y están pendientes de tu procesamiento final.
+
+Usa los botones "Procesar" o "Rechazar" para finalizar el trámite de cada solicitud.
+
+Reportes (RRHH)
+Accede a la tarjeta "Reportes".
+
+El primer reporte disponible es el "Listado de Agentes Activos", que muestra una tabla completa del personal actual, sus roles y jefes.
+
+7. Cerrar Sesión
+Para salir de la aplicación de forma segura, utiliza siempre el enlace "Cerrar Sesión" en el menú lateral.

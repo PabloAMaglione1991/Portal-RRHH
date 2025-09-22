@@ -1,0 +1,70 @@
+{% extends "layout/base.html.twig" %}
+
+{% block content %}
+<h1>Editar Usuario</h1>
+<a href="/usuarios" class="back-link"><i class="fas fa-arrow-left"></i> Volver a la Gestión</a>
+
+<div class="container">
+    {% if error_message %}
+        <div class="alert error">{{ error_message }}</div>
+    {% endif %}
+
+    <form action="/usuarios/editar/{{ usuario.age_id }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" value="{{ usuario.age_nombre }}" required>
+        </div>
+        <div class="form-group">
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="apellido" value="{{ usuario.age_apell1 }}" required>
+        </div>
+        <div class="form-group">
+            <label for="dni">DNI:</label>
+            <input type="text" id="dni" name="dni" value="{{ usuario.age_numdoc }}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Cambiar Contraseña (opcional):</label>
+            <input type="password" id="password" name="password" placeholder="Deja vacío para no cambiarla">
+        </div>
+        <div class="form-group">
+            <label>Roles:</label>
+            <div class="role-checkboxes">
+                <label><input type="checkbox" name="role[]" value="agente" {{ 'agente' in roles_actuales ? 'checked' : '' }}> Agente</label>
+                <label><input type="checkbox" name="role[]" value="jefe" {{ 'jefe' in roles_actuales ? 'checked' : '' }}> Jefe</label>
+                <label><input type="checkbox" name="role[]" value="supervisor" {{ 'supervisor' in roles_actuales ? 'checked' : '' }}> Supervisor</label>
+                <label><input type="checkbox" name="role[]" value="rrhh" {{ 'rrhh' in roles_actuales ? 'checked' : '' }}> RRHH</label>
+                <label><input type="checkbox" name="role[]" value="admin" {{ 'admin' in roles_actuales ? 'checked' : '' }}> Admin</label>
+                <label><input type="checkbox" name="role[]" value="profesional" {{ 'profesional' in roles_actuales ? 'checked' : '' }}> Profesional</label>
+                <label><input type="checkbox" name="role[]" value="personal_de_turnos" {{ 'personal_de_turnos' in roles_actuales ? 'checked' : '' }}> Personal de Turnos</label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="jefe">Jefe Asignado:</label>
+            <select id="jefe" name="jefe">
+                <option value="">Ninguno</option>
+                {% for jefe in jefes_supervisores %}
+                    <option value="{{ jefe.age_id }}" {{ jefe.age_id == usuario.jefe_age_id ? 'selected' : '' }}>
+                        {{ jefe.age_apell1 }} {{ jefe.age_nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="supervisor">Supervisor Asignado:</label>
+            <select id="supervisor" name="supervisor">
+                <option value="">Ninguno</option>
+                {% for supervisor in jefes_supervisores %}
+                    <option value="{{ supervisor.age_id }}" {{ supervisor.age_id == usuario.supervisor_age_id ? 'selected' : '' }}>
+                        {{ supervisor.age_apell1 }} {{ supervisor.age_nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <input type="submit" value="Guardar Cambios">
+    </form>
+</div>
+{% endblock %}

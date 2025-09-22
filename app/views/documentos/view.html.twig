@@ -1,0 +1,64 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Documentación de: {{ agente.age_apell1 }}, {{ agente.age_nombre }}</h1>
+    <a href="/documentacion_personal" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Listado de Agentes</a>
+
+    {% if mensaje %}
+        <div class="alert {{ mensaje.type }}">{{ mensaje.text }}</div>
+    {% endif %}
+
+    <div class="container">
+        <h2>Subir Nuevo Documento</h2>
+        <form action="/ver_documentos/{{ agente.age_id }}" method="post" enctype="multipart/form-data" class="filters" style="justify-content: flex-start;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="accion" value="subir">
+
+            <input type="text" name="tipo_documento" placeholder="Tipo de Documento (Ej: DNI, CV)" required style="max-width: 250px;">
+            <input type="file" name="documento" required>
+
+            <button type="submit" class="btn-view"><i class="fas fa-upload"></i> Subir Archivo</button>
+        </form>
+    </div>
+
+    <div class="container" style="margin-top: 30px;">
+        <h2>Documentos Existentes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de Documento</th>
+                    <th>Nombre del Archivo</th>
+                    <th>Fecha de Subida</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if documentos is not empty %}
+                    {% for doc in documentos %}
+                        <tr>
+                            <td>{{ doc.tipo_documento }}</td>
+                            <td>
+                                <a href="{{ doc.path_archivo }}" target="_blank">
+                                    <i class="fas fa-file-alt"></i> {{ doc.nombre_archivo }}
+                                </a>
+                            </td>
+                            <td>{{ doc.fecha_subida|date('d/m/Y H:i') }}</td>
+                            <td class="action-buttons" style="justify-content: flex-end;">
+                                <form action="/ver_documentos/{{ agente.age_id }}" method="post" onsubmit="return confirm('¿Está seguro de que desea eliminar este documento?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <input type="hidden" name="accion" value="eliminar">
+                                    <input type="hidden" name="doc_id" value="{{ doc.doc_id }}">
+                                    <button type="submit" class="btn-delete btn-sm"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Este agente no tiene documentos subidos.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

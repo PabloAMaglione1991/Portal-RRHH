@@ -1,0 +1,195 @@
+{% extends "layout/base.html.twig" %}
+
+{% block content %}
+<h1>Gestión de Usuarios</h1>
+<a href="/usuarios/crear" class="create-btn" style="float: right; margin-top: -65px;">Crear Nuevo Usuario</a>
+
+{% if mensaje %}
+    <div class="alert {{ mensaje.type }}">{{ mensaje.text }}</div>
+{% endif %}
+
+<div class="container">
+    <h2>Filtros de Búsqueda</h2>
+    <form id="filter-form" class="filters">
+        <input type="text" id="filtro-nombre" name="nombre" placeholder="Buscar por Nombre/Apellido..." value="{{ filtros.nombre }}">
+        <select id="filtro-rol" name="rol_id">
+            <option value="">Todos los Roles</option>
+            {% for rol in roles %}
+                <option value="{{ rol.rol_id }}" {{ filtros.rol_id == rol.rol_id ? 'selected' : '' }}>{{ rol.rol_nombre|capitalize }}</option>
+            {% endfor %}
+        </select>
+        <select id="filtro-jefe" name="jefe_id">
+            <option value="">Todos los Jefes</option>
+            {% for jefe in jefes_filtro %}
+                <option value="{{ jefe.age_id }}" {{ filtros.jefe_id == jefe.age_id ? 'selected' : '' }}>{{ jefe.age_apell1 }}, {{ jefe.age_nombre }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<form action="/usuarios/asignar-jefe" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="container">
+        <h2>Listado de Agentes (<span id="total-usuarios-count">{{ total_usuarios }}</span> encontrados)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Roles</th>
+                    <th>Jefe Actual</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="user-table-body">
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td><input type="checkbox" name="agentes_ids[]" value="{{ usuario.age_id }}" class="agent-checkbox"></td>
+                        <td>{{ usuario.age_apell1 }} {{ usuario.age_nombre }}</td>
+                        <td>{{ usuario.age_numdoc }}</td>
+                        <td>{{ usuario.roles ? usuario.roles : 'Sin rol' }}</td>
+                        <td>{{ usuario.jefe_apellido ? usuario.jefe_apellido : 'N/A' }}</td>
+                        <td class="action-buttons">
+                            <a href="/usuarios/editar/{{ usuario.age_id }}" class="btn-edit">Editar</a>
+                            <form action="/usuarios/eliminar/{{ usuario.age_id }}" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn-delete">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" style="text-align: center;">No se encontraron usuarios.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="load-more-container" style="text-align: center; margin-top: 20px;">
+            {% if total_usuarios > registros_por_pagina %}
+            <button type="button" id="load-more-btn" class="btn-view">Cargar más</button>
+            {% endif %}
+            <div id="loading-indicator" style="display:none;">Cargando...</div>
+        </div>
+    </div>
+    <div class="container bulk-assign-form">
+        <h3>Asignar Jefe a los Agentes Seleccionados</h3>
+        <div class="form-row">
+            <select name="jefe_id" required>
+                <option value="" disabled selected>Seleccione un Jefe...</option>
+                {% for jefe in jefes_asignacion %}
+                    <option value="{{ jefe.age_id }}">{{ jefe.age_apell1 }}, {{ jefe.age_nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-view">Asignar Jefe</button>
+        </div>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const storageKey = 'selectedAgents';
+    let currentPage = 1;
+
+    const userTableBody = document.getElementById('user-table-body');
+    const filterForm = document.getElementById('filter-form');
+    const loadMoreContainer = document.querySelector('.load-more-container');
+    
+    const getSelectedAgents = () => new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+    const saveSelectedAgents = (agents) => localStorage.setItem(storageKey, JSON.stringify(Array.from(agents)));
+    let selectedAgents = getSelectedAgents();
+
+    const initializeCheckboxes = (container) => {
+        const checkboxes = container.querySelectorAll('.agent-checkbox');
+        checkboxes.forEach(checkbox => {
+            if (selectedAgents.has(checkbox.value)) {
+                checkbox.checked = true;
+            }
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    selectedAgents.add(checkbox.value);
+                } else {
+                    selectedAgents.delete(checkbox.value);
+                }
+                saveSelectedAgents(selectedAgents);
+            });
+        });
+    };
+
+    initializeCheckboxes(userTableBody);
+
+    const fetchUsers = (page = 1, append = false) => {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if(loadingIndicator) loadingIndicator.style.display = 'block';
+        
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+
+        if (!append) {
+            userTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Buscando...</td></tr>';
+        }
+
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData).toString();
+        // THIS IS THE IMPORTANT CHANGE
+        const url = `/usuarios/ajax?p=${page}&${params}`;
+
+        fetch(url)
+            .then(response => {
+                if (response.status === 204) return null;
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                if(loadingIndicator) loadingIndicator.style.display = 'none';
+                
+                if (append) {
+                    userTableBody.insertAdjacentHTML('beforeend', html || '');
+                } else {
+                    userTableBody.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No se encontraron usuarios.</td></tr>';
+                }
+                
+                if (loadMoreBtn) {
+                    if (html) {
+                        loadMoreBtn.style.display = 'inline-block';
+                    } else {
+                        loadMoreBtn.style.display = 'none';
+                    }
+                }
+                
+                initializeCheckboxes(userTableBody);
+            })
+            .catch(error => {
+                console.error('Error al buscar agentes:', error);
+                userTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al cargar los datos.</td></tr>';
+            });
+    };
+
+    let debounceTimeout;
+    const debounceFetch = () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            currentPage = 1;
+            fetchUsers(currentPage, false);
+        }, 300);
+    };
+
+    document.getElementById('filtro-nombre').addEventListener('keyup', debounceFetch);
+    document.getElementById('filtro-rol').addEventListener('change', debounceFetch);
+    document.getElementById('filtro-jefe').addEventListener('change', debounceFetch);
+
+    filterForm.addEventListener('submit', e => e.preventDefault());
+
+    loadMoreContainer.addEventListener('click', function(event) {
+        if (event.target && event.target.id === 'load-more-btn') {
+            currentPage++;
+            fetchUsers(currentPage, true);
+        }
+    });
+
+    if (new URLSearchParams(window.location.search).get('assign') === 'success') {
+        localStorage.removeItem(storageKey);
+        window.history.replaceState({}, document.title, "/usuarios");
+    }
+});
+</script>
+{% endblock %}

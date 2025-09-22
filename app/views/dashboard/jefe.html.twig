@@ -1,0 +1,51 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Panel de Jefe: {{ jefe_info.age_nombre }} {{ jefe_info.age_apell1 }}</h1>
+
+    <div class="dashboard-nav">
+        <a href="/aprobar_licencias_jefe" class="nav-card">
+            <i class="fas fa-file-signature"></i>
+            <h3>Aprobar Licencias</h3>
+            {% if solicitudes_pendientes > 0 %}
+                <span class="notification-badge">{{ solicitudes_pendientes }}</span>
+            {% endif %}
+        </a>
+    </div>
+
+    <div class="container">
+        <h2>Agentes a cargo</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Apellido y Nombre</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if agentes is not empty %}
+                    {% for agente in agentes %}
+                        <tr>
+                            <td>{{ agente.age_apell1 }}, {{ agente.age_nombre }}</td>
+                            <td style="text-align: right;">
+                                <a href="/fichadas?tarjeta={{ agente.tarj_nro|url_encode }}" class="btn-view">
+                                    <i class="fas fa-eye"></i> Ver Fichadas
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">Este jefe no tiene agentes asignados.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        {% if is_supervisor_viewing %}
+            <a href="/dashboard_supervisor" class="back-link" style="margin-top: 20px;">
+                <i class="fas fa-arrow-left"></i> Volver al Panel de Supervisor
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}

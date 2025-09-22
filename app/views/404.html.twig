@@ -1,0 +1,9 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <div style="text-align: center; padding: 50px;">
+        <h1>Error 404: {{ page_title|default('Página no encontrada') }}</h1>
+        <p>Lo sentimos, la página que buscas no existe o ha sido movida.</p>
+        <a href="/dashboard_main" class="button">Volver al Inicio</a>
+    </div>
+{% endblock %}

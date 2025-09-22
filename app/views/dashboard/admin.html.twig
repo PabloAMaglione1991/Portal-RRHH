@@ -1,0 +1,29 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Panel de Administración</h1>
+    <p>Desde aquí puedes gestionar las configuraciones centrales de la aplicación.</p>
+
+    <div class="container">
+        <div class="dashboard-nav">
+            
+            <a href="/gestion_usuarios" class="nav-card">
+                <i class="fas fa-users-cog"></i>
+                <h3>Gestión de Usuarios</h3>
+            </a>
+
+            <a href="/gestion_modulos" class="nav-card">
+                <i class="fas fa-toggle-on"></i>
+                <h3>Activar/Desactivar Módulos</h3>
+            </a>
+
+            {% if modulo_novedades_activo %}
+            <a href="/gestion_novedades" class="nav-card">
+                <i class="fas fa-newspaper"></i>
+                <h3>Gestión de Novedades</h3>
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

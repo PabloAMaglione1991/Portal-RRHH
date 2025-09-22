@@ -1,0 +1,36 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Solicitar Licencia</h1>
+    <a href="/licencias_articulos" class="back-link"><i class="fas fa-arrow-left"></i> Volver a Tipos de Licencia</a>
+
+    <div class="container" style="max-width: 700px;">
+        <h2>Estás solicitando: {{ articulo }}</h2>
+        <p>Por favor, completa los siguientes datos para enviar tu solicitud.</p>
+
+        {% if error_message %}
+            <div class="alert error">{{ error_message }}</div>
+        {% endif %}
+
+        <form action="/solicitar_licencia?articulo={{ articulo|url_encode }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="form-group">
+                <label for="fecha_inicio">Fecha de Inicio</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha_fin">Fecha de Fin</label>
+                <input type="date" id="fecha_fin" name="fecha_fin" required>
+            </div>
+
+            <div class="form-group">
+                <label for="motivo">Motivo o Comentarios Adicionales</label>
+                <textarea id="motivo" name="motivo" rows="4"></textarea>
+            </div>
+
+            <input type="submit" value="Enviar Solicitud">
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p>Activa o desactiva funcionalidades de la aplicación en tiempo real.</p>
+
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Módulo</th>
+                    <th>Descripción</th>
+                    <th style="text-align: center;">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for modulo in modulos %}
+                    <tr>
+                        <td><strong>{{ modulo.modulo_nombre|e }}</strong></td>
+                        <td>{{ modulo.modulo_descripcion|e }}</td>
+                        <td style="text-align: center;">
+                            <form action="/gestion_modulos" method="post">
+                                <input type="hidden" name="modulo_id" value="{{ modulo.modulo_id }}">
+                                <input type="checkbox" name="estado" value="1" {{ modulo.modulo_activo ? 'checked' : '' }} onchange="this.form.submit()">
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,81 @@
+# Modificaciones de Base de Datos para la Aplicación
+
+A continuación se detallan las sentencias SQL y las recomendaciones para adaptar tu base de datos `t_agente` al funcionamiento de la nueva aplicación.
+
+---
+
+## Modificaciones Necesarias en `t_agente`
+
+Necesitas agregar 4 nuevas columnas a tu tabla `t_agente`. Puedes ejecutar las siguientes sentencias SQL en tu gestor de base de datos (como phpMyAdmin, DBeaver, etc.).
+
+### 1. Columna para la Contraseña
+
+Esta columna almacenará la contraseña *hasheada* del usuario. Es importante que sea lo suficientemente larga para los hashes generados por PHP.
+
+```sql
+ALTER TABLE `t_agente`
+ADD COLUMN `age_password_hash` VARCHAR(255) NULL AFTER `age_numdoc`;
+VARCHAR(255): Es el tamaño recomendado para los hashes de contraseñas, ya que la longitud puede variar según el algoritmo.
+
+NULL: Se permite que sea nula por si existen agentes en el sistema que no son usuarios de la aplicación y no necesitan contraseña.
+
+2. Columna para los Roles
+Aquí guardaremos la cadena de texto con los roles del usuario (ej. "agente,jefe").
+
+SQL
+
+ALTER TABLE `t_agente`
+ADD COLUMN `age_role` VARCHAR(255) NULL AFTER `age_password_hash`;
+3. Columnas para la Jerarquía (Jefe y Supervisor)
+Estas columnas son claves foráneas a la misma tabla (t_agente) para definir quién reporta a quién.
+
+SQL
+
+-- Columna para el ID del Jefe
+ALTER TABLE `t_agente`
+ADD COLUMN `jefe_age_id` INT(10) NULL AFTER `age_role`,
+ADD CONSTRAINT `fk_jefe` FOREIGN KEY (`jefe_age_id`) REFERENCES `t_agente`(`age_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Columna para el ID del Supervisor
+ALTER TABLE `t_agente`
+ADD COLUMN `supervisor_age_id` INT(10) NULL AFTER `jefe_age_id`,
+ADD CONSTRAINT `fk_supervisor` FOREIGN KEY (`supervisor_age_id`) REFERENCES `t_agente`(`age_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+FOREIGN KEY (...): Crea una relación formal en la base de datos para mantener la integridad de los datos.
+
+ON DELETE SET NULL: Si un jefe es eliminado, sus agentes a cargo no serán eliminados; en su lugar, su campo jefe_age_id se establecerá en NULL. Esto previene la pérdida de datos.
+
+Mejora Recomendada: Normalización de Roles (A Futuro)
+Guardar los roles como "agente,jefe" funciona, pero no es ideal para consultas complejas o gestionar permisos de forma granular. Cuando tengas oportunidad, te recomiendo implementar la siguiente estructura. No es necesario que lo hagas ahora para que la aplicación funcione, pero es la forma profesional de manejar los roles.
+
+1. Crear una tabla t_roles
+Esta tabla contendrá los roles disponibles.
+
+SQL
+
+CREATE TABLE `t_roles` (
+  `rol_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `rol_nombre` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`rol_id`),
+  UNIQUE KEY `rol_nombre_unique` (`rol_nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Insertamos los roles que usamos
+INSERT INTO `t_roles` (`rol_nombre`) VALUES
+('agente'),
+('jefe'),
+('supervisor'),
+('rrhh'),
+('admin');
+2. Crear una tabla intermedia t_agente_roles
+Esta tabla conectará a los agentes con sus roles (una relación de muchos a muchos).
+
+SQL
+
+CREATE TABLE `t_agente_roles` (
+  `agente_id` INT(10) NOT NULL,
+  `rol_id` INT(11) NOT NULL,
+  PRIMARY KEY (`agente_id`, `rol_id`),
+  CONSTRAINT `fk_agente_roles_agente` FOREIGN KEY (`agente_id`) REFERENCES `t_agente` (`age_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_agente_roles_rol` FOREIGN KEY (`rol_id`) REFERENCES `t_roles` (`rol_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+Si implementas esta mejora a futuro, deberás modificar los scripts de PHP para que lean y escriban en estas nuevas tablas en lugar de en la columna age_role.

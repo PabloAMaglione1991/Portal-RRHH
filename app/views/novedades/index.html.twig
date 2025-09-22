@@ -1,0 +1,53 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Gestión de Novedades</h1>
+    <a href="/crear_novedad" class="create-btn" style="float: right; margin-top: -65px;">Crear Nueva Novedad</a>
+
+    {% if mensaje %}
+        <div class="alert {{ mensaje.type }}">{{ mensaje.text }}</div>
+    {% endif %}
+
+    <div class="container">
+        <h2>Listado de Novedades</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Contenido Corto</th>
+                    <th>Fecha Publicación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if novedades is not empty %}
+                    {% for novedad in novedades %}
+                        <tr>
+                            <td>{{ novedad.nov_titulo }}</td>
+                            <td>{{ novedad.nov_contenido_corto }}</td>
+                            <td>{{ novedad.nov_fecha_publicacion|date('d/m/Y H:i') }}</td>
+                            <td>
+                                {% if novedad.nov_activo %}
+                                    <span class="status-active">Activa</span>
+                                {% else %}
+                                    <span class="status-inactive">Inactiva</span>
+                                {% endif %}
+                            </td>
+                            <td class="action-buttons">
+                                <a href="/editar_novedad?id={{ novedad.nov_id }}" class="btn-edit">Editar</a>
+                                <form action="/eliminar_novedad" method="post" onsubmit="return confirm('¿Está seguro?');">
+                                    <input type="hidden" name="id" value="{{ novedad.nov_id }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5">No hay novedades publicadas.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

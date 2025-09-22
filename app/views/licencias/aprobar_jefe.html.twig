@@ -1,0 +1,64 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Aprobación de Licencias</h1>
+    <a href="/dashboard_jefe" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Panel de Jefe</a>
+
+    {% if mensaje %}
+        <div class="alert {{ mensaje.type }}">{{ mensaje.text }}</div>
+    {% endif %}
+
+    <div class="container">
+        <h2>Solicitudes Pendientes de tu Equipo</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Agente</th>
+                    <th>Tipo de Licencia</th>
+                    <th>Período</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if solicitudes is not empty %}
+                    {% for solicitud in solicitudes %}
+                        <tr>
+                            <td>{{ solicitud.agente_nombre }}</td>
+                            <td>{{ solicitud.articulo }}</td>
+                            <td>{{ solicitud.fecha_inicio|date('d/m/Y') }} - {{ solicitud.fecha_fin|date('d/m/Y') }}</td>
+                            <td>
+                                {% if solicitud.estado == 'expirada' %}
+                                    <span class="status-expired">Tiempo caducado</span>
+                                {% else %}
+                                    {% set fecha_solicitud = date(solicitud.fecha_solicitud) %}
+                                    {% set ahora = date('now') %}
+                                    {% set diferencia = date_diff(ahora, fecha_solicitud) %}
+                                    {% set horas_pasadas = diferencia.days * 24 + diferencia.h %}
+                                    {% set horas_restantes = 48 - horas_pasadas %}
+                                    {{ (horas_restantes > 0) ? horas_restantes ~ ' hs restantes' : 'Expirado' }}
+                                {% endif %}
+                            </td>
+                            <td class="action-buttons" style="justify-content: flex-end;">
+                                {% if solicitud.estado == 'pendiente' %}
+                                    <form action="/aprobar_licencias_jefe" method="post">
+                                        <input type="hidden" name="aprobar_id" value="{{ solicitud.solicitud_id }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="aprobar-btn btn-sm"><i class="fas fa-check"></i> Aprobar</button>
+                                    </form>
+                                    <form action="/aprobar_licencias_jefe" method="post">
+                                        <input type="hidden" name="rechazar_id" value="{{ solicitud.solicitud_id }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="rechazar-btn btn-sm"><i class="fas fa-times"></i> Rechazar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" style="text-align: center;">No tienes solicitudes de licencia pendientes de aprobación.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Editar Novedad</h1>
+    <a href="/gestion_novedades" class="back-link"><i class="fas fa-arrow-left"></i> Volver a la Gestión de Novedades</a>
+
+    <div class="container">
+        {% if error_message %}
+            <div class="alert error">{{ error_message }}</div>
+        {% endif %}
+
+        <form action="/editar_novedad/{{ novedad.nov_id }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            
+            <div class="form-group">
+                <label for="titulo">Título de la Novedad</label>
+                <input type="text" id="titulo" name="titulo" value="{{ novedad.nov_titulo }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="contenido_corto">Resumen (Contenido Corto)</label>
+                <textarea id="contenido_corto" name="contenido_corto" rows="3" maxlength="500">{{ novedad.nov_contenido_corto }}</textarea>
+                <small>Este texto se mostrará en las vistas previas. Máximo 500 caracteres.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="contenido_largo">Contenido Completo</label>
+                <textarea id="contenido_largo" name="contenido_largo" rows="10">{{ novedad.nov_contenido_largo }}</textarea>
+                <small>Este es el cuerpo principal de la noticia.</small>
+            </div>
+
+            <input type="submit" value="Actualizar Novedad">
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Centro de Reportes</h1>
+    <a href="/dashboard_rrhh" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Panel de RRHH</a>
+
+    <div class="container">
+        <h2>Listado de Agentes Activos</h2>
+        <p>Este reporte muestra todos los agentes actualmente activos en el sistema, junto con sus roles y jefe asignado.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Apellido y Nombre</th>
+                    <th>DNI</th>
+                    <th>Roles Asignados</th>
+                    <th>Jefe Directo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if agentes is not empty %}
+                    {% for agente in agentes %}
+                        <tr>
+                            <td>{{ agente.age_apell1 }}, {{ agente.age_nombre }}</td>
+                            <td>{{ agente.age_numdoc }}</td>
+                            <td>{{ agente.roles ?: 'Sin rol' }}</td>
+                            <td>{{ agente.jefe_apellido ?: 'N/A' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No se encontraron agentes activos en el sistema.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container" style="margin-top: 30px; background-color: #f8f9fa;">
+        <h2>Próximos Reportes</h2>
+        <p>Esta sección se expandirá para incluir reportes más complejos.</p>
+    </div>
+{% endblock %}

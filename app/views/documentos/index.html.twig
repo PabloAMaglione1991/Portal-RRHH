@@ -1,0 +1,43 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Gestión de Documentación Personal</h1>
+    <a href="/dashboard_rrhh" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Panel de RRHH</a>
+
+    <div class="container">
+        <h2>Seleccionar Agente</h2>
+        <p>Busca un agente para ver o administrar su documentación.</p>
+
+        <form action="/documentacion_personal" method="get" class="filters" style="justify-content: flex-start; margin-bottom: 20px;">
+            <input type="text" name="nombre" placeholder="Buscar por Nombre o Apellido..." value="{{ filtro_nombre }}" style="max-width: 300px;">
+            <button type="submit" class="btn-view">Buscar</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Apellido y Nombre</th>
+                    <th>DNI</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if agentes is not empty %}
+                    {% for agente in agentes %}
+                        <tr>
+                            <td>{{ agente.age_apell1 }}, {{ agente.age_nombre }}</td>
+                            <td>{{ agente.age_numdoc }}</td>
+                            <td style="text-align: right;">
+                                <a href="/ver_documentos?id={{ agente.age_id }}" class="btn-view btn-sm">
+                                    <i class="fas fa-folder-open"></i> Ver Documentos
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="3" style="text-align: center;">No se encontraron agentes.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

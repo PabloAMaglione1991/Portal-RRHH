@@ -1,0 +1,34 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Seleccionar Tipo de Licencia</h1>
+    <a href="/dashboard_agente" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Panel</a>
+
+    <div class="container">
+        <p>Selecciona un tipo de licencia o justificación para iniciar la solicitud.</p>
+
+        <div class="category-container">
+            {% for category, articulos in licencia_articulos %}
+                <div class="category">
+                    <h3>
+                        {% if category == 'Licencia Anual' %}
+                            <i class="fas fa-calendar-alt"></i>
+                        {% elseif category == 'Licencias por Salud' %}
+                            <i class="fas fa-heartbeat"></i>
+                        {% elseif category == 'Licencias Especiales' %}
+                            <i class="fas fa-star"></i>
+                        {% elseif category == 'Licencias por Estudio o Actividad Gremial' %}
+                            <i class="fas fa-book-open"></i>
+                        {% endif %}
+                        {{ category }}
+                    </h3>
+                    <ul>
+                        {% for articulo in articulos %}
+                            <li><a href="/solicitar_licencia?articulo={{ articulo|url_encode }}">{{ articulo }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

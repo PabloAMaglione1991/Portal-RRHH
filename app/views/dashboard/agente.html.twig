@@ -1,0 +1,27 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block content %}
+    <h1>Dashboard de Agente</h1>
+    <p>Bienvenido, {{ user_name }}. Aquí tienes tus acciones disponibles.</p>
+
+    <div class="container">
+        <div class="dashboard-nav">
+
+            <a href="/fichadas?tarjeta={{ user_tarjeta|url_encode }}" class="nav-card">
+                <i class="fas fa-calendar-check"></i>
+                <h3>Ver mis Fichadas</h3>
+            </a>
+
+            <a href="/solicitar_licencia" class="nav-card">
+                <i class="fas fa-file-alt"></i>
+                <h3>Solicitar Licencia</h3>
+            </a>
+
+            <a href="/cambiar_contrasena" class="nav-card">
+                <i class="fas fa-key"></i>
+                <h3>Cambiar Contraseña</h3>
+            </a>
+
+        </div>
+    </div>
+{% endblock %}
